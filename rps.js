@@ -18,48 +18,28 @@ function getComputerChoice() {
   return computerChoice;
 }
 
-function getHumanChoice() {
-  let userInput = prompt("Your choice: ");
-  userInput = userInput.toLowerCase();
-  let userChoice = '';
-  
-  switch(userInput) {
-    case "rock":
-    case "paper":
-    case "scissors":
-      userChoice = userInput;
-      break;
-
-    default:
-      console.log("Error! Try again");
-      userChoice = getHumanChoice();
-      break;
-  }
-
-  return userChoice;
-}
-
-function playRound() {
-  let humanChoice = getHumanChoice();
+function playRound(humanChoice) {
   let computerChoice = getComputerChoice();
 
   let winner = determineWinner(humanChoice, computerChoice);
 
   switch (winner) {
     case "human":
-      console.log(`Human wins! ${humanChoice} beats ${computerChoice}`);
       ++humanScore;
+      displayRoundScore(`Human wins! ${humanChoice} beats ${computerChoice}`);
       break;
 
     case "computer":
-      console.log(`Computer wins! ${computerChoice} beats ${humanChoice}`);
       ++computerScore;
+      displayRoundScore(`Computer wins! ${computerChoice} beats ${humanChoice}`);
       break;
 
     case "tie":
-      console.log(`Tie! Both players selected ${humanChoice}`)
+      displayRoundScore(`Tie! Both players selected ${humanChoice}`)
       break;
   }
+
+  checkExitGame();
 }
 
 function determineWinner(humanChoice, computerChoice) {
@@ -85,26 +65,71 @@ function determineWinner(humanChoice, computerChoice) {
   if (humanChoice == "scissors" && computerChoice == "paper") {
     return "human";
   }
+}
 
+function displayRoundScore(message) {
+  let para = document.createElement('p');
+  para.textContent = message;
+  resultsBlock.appendChild(para);
+}
+
+function checkExitGame() {
+  if (humanScore < pointsToWin && computerScore < pointsToWin) {
+    return;
+  }
+
+  displayRoundScore(" ");
+  displayRoundScore("Game ended!");
+
+  if (humanScore == pointsToWin) {
+    displayRoundScore(`Human wins! Human: ${humanScore}. Computer: ${computerScore}.`)
+  } else {
+    displayRoundScore(`Computer wins! Human: ${humanScore}. Computer: ${computerScore}.`)
+  }
+
+  displayRoundScore(" ");
+  displayRoundScore("Press 'New game' to play again!");
+
+  showElement(newGameButton);
+  hideElement(choiceButtonsBlock);
+}
+
+function voidScores() {
+  humanScore = 0;
+  computerScore = 0;
+}
+
+function showElement(element) {
+  element.style.display = "block";
+}
+
+function hideElement(element) {
+  element.style.display = "none";
 }
 
 let humanScore = 0;
 let computerScore = 0;
+let pointsToWin = 5;
 
-function playGame() {
-  let pointsToWin = 3;
-  while (humanScore < pointsToWin && computerScore < pointsToWin) {
-    playRound();
+
+let newGameButton = document.querySelector(".new-game");
+let choiceButtonsBlock = document.querySelector('.choice-buttons');
+let resultsBlock = document.querySelector(".results");
+
+newGameButton.addEventListener("click", (e) => {
+  voidScores();
+  showElement(choiceButtonsBlock);
+  hideElement(e.target);
+  resultsBlock.innerHTML = "";
+});
+
+choiceButtonsBlock.addEventListener('click', (e) => {
+  let button = e.target;
+  if (button.classList.contains('choice-button')) {
+    playRound(button.textContent.toLowerCase());
   }
+});
 
-  if (humanScore == pointsToWin) {
-    console.log(`Human wins! Human: ${humanScore}. Computer: ${computerScore}.`)
-  } else {
-    console.log(`Computer wins! Human: ${humanScore}. Computer: ${computerScore}.`)
-  }
-}
-
-playGame();
 
 
 
